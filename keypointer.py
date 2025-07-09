@@ -14,7 +14,9 @@ Classes:
 import os.path
 import sys
 import urllib.request
+import re
 from ast import literal_eval
+
 import resources_rc
 
 # import cv2
@@ -266,9 +268,13 @@ class FormWidget(QWidget):
         Returns:
             list: 폴더 내의 모든 .txt 및 .jpg 파일 경로 목록.
         """
+        def natural_key(s):
+            return [int(text) if text.isdigit() else text.lower()
+                    for text in re.split(r'(\d+)', s)]
+
         item = []
         for root, _, files in os.walk(folderPath):
-            for file in sorted(files):
+            for file in sorted(files, key=natural_key):
                 if ".txt" in file or ".jpg" in file:
                     relativePath = os.path.join(root, file)
                     path = str(os.path.abspath(relativePath))
