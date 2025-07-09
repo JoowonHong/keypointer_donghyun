@@ -36,6 +36,7 @@ python keypointer.py
 # D : Go to the next frame
 # E : Except the frame
 # X : Initialize the point to null
+# V : Paste the previous points for current image
 
 # I : Position up
 # J : Position Left

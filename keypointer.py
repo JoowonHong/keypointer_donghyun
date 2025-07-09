@@ -220,16 +220,14 @@ class FormWidget(QWidget):
         """
         self.imageDirpath = QFileDialog.getExistingDirectory(
             self, self.tr("Open Data files"), os.getcwd(), QFileDialog.ShowDirsOnly
-        )  #'./KeyPointer/240427/BRAX001/part1/frame'
+        )  #'./donghae_a/part1/images'
 
         self.allImgList = self.scanAllItems(self.imageDirpath)
         self.mImgList = [
             item for i, item in enumerate(self.allImgList) if i % self.filtering_mul == 0
         ]  # filtering
-        self.len_ImgLisg = len(self.mImgList)
-        for imgPath in self.mImgList:
-            item = QListWidgetItem(imgPath)
-        # self.imageOpenEvent(0)
+        self.len_ImgList = len(self.mImgList)
+
 
     def openDirKeyPointClicked(self) -> None:
         """키포인트 디렉토리 열기 이벤트 핸들러.
@@ -239,7 +237,7 @@ class FormWidget(QWidget):
         """
         self.keypointDirpath = QFileDialog.getExistingDirectory(
             self, self.tr("Open Data files"), os.getcwd(), QFileDialog.ShowDirsOnly
-        )  #'./KeyPointer/240427/BRAX001/part1/gt'
+        )  #'./donghae_a/part1/labels'
 
         # resume
         allTxtList = self.scanAllItems(self.keypointDirpath)
@@ -248,8 +246,7 @@ class FormWidget(QWidget):
             resumeImg = os.path.join(self.imageDirpath, latestItem)
             resumeImg = str(os.path.abspath(resumeImg))
 
-            resumeIndex = self.mImgList.index(resumeImg) - 1
-
+            resumeIndex = self.mImgList.index(resumeImg)
             print(f"Resume.. Index : {resumeIndex} Image : {latestItem}")
         else:
             resumeIndex = 0
@@ -257,8 +254,6 @@ class FormWidget(QWidget):
 
         self.imageOpenEvent(resumeIndex)
 
-        # self.txtOpenEvent()
-        # self.refreshPaint()
 
     def scanAllItems(self, folderPath: str) -> list:
         """지정된 폴더의 모든 항목을 스캔합니다.
@@ -333,14 +328,15 @@ class FormWidget(QWidget):
                 if index == 6:
                     item = round(item * self.reverseRatio / self.oriHeight, 4)   # py1
 
-                tempData = tempData + str(item) + ","
+                tempData = tempData + str(item) + " "
             exportData = exportData + tempData[0 : len(tempData) - 1] + "\n"
         f.write(exportData[0 : len(exportData) - 1])
         f.close()
         len_Done = len(os.listdir(self.keypointDirpath)) - 1
+
         print(
-            f"Save... {self.txtFile} : {self.points} -> {exportData} \
-                ( {round(len_Done/self.len_ImgLisg*100, 2)}% | {len_Done} / {self.len_ImgLisg})"
+            f"Save... {self.txtFile} : \n"
+            f"{self.points} -> {exportData} | {round(len_Done/self.len_ImgList*100, 2)}% | {len_Done} / {self.len_ImgList})"
         )
 
     def exceptImageEvent(self) -> None:
@@ -444,15 +440,15 @@ class FormWidget(QWidget):
             f = open(txtPath)
             lines = f.readlines()
             for index, line in enumerate(lines):
-                line_ = list(map(float, line.strip().split(",")))
+                line_ = list(map(float, line.strip().split(" ")))
                 line_new = [0, 0, 0, 0, 0, 0, 0, 0]    # [class, cx, cy, obj_w, obj_h, px1, py1, vis]
                 line_new[0] = int(line_[0])
-                line_new[1] = float(line_[1] * self.oriWidth * self.sizeRatio)
-                line_new[2] = float(line_[2] * self.oriHeight * self.sizeRatio)
-                line_new[3] = float(line_[3] * self.oriWidth * self.sizeRatio)
-                line_new[4] = float(line_[4] * self.oriHeight * self.sizeRatio)
-                line_new[5] = float(line_[5] * self.oriWidth * self.sizeRatio)
-                line_new[6] = float(line_[6] * self.oriHeight * self.sizeRatio)
+                line_new[1] = int(line_[1] * self.oriWidth * self.sizeRatio)
+                line_new[2] = int(line_[2] * self.oriHeight * self.sizeRatio)
+                line_new[3] = int(line_[3] * self.oriWidth * self.sizeRatio)
+                line_new[4] = int(line_[4] * self.oriHeight * self.sizeRatio)
+                line_new[5] = int(line_[5] * self.oriWidth * self.sizeRatio)
+                line_new[6] = int(line_[6] * self.oriHeight * self.sizeRatio)
                 line_new[7] = int(line_[7])
                 values.append(line_new)
             f.close()
@@ -462,14 +458,11 @@ class FormWidget(QWidget):
                 pass
 
         if len(values) > 0:
-            for index, value in enumerate(values):
-                self.points[index] = value
+            self.points = values
         else:
             self.initPoints()
 
         self.txtFile = txtFile
-
-        self.refreshPaint()
 
     def checkExceptFile(self) -> None:
         """예외 파일 확인.
