@@ -22,10 +22,6 @@ cd pxcast-keypointer
 pip install opencv-python PyQt5==5.15.10
 ```
 
-Dataset
-* 192.168.0.110:5000 -> PixelscopeNAS1 -> pixelscope -> 필드하키 데이터셋
-* pxcast-keypointer/data/ 아래 저장
-
 ### Run
 ```shell
 python keypointer.py
