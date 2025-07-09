@@ -195,7 +195,7 @@ class FormWidget(QWidget):
         self.currIndex = 0
         self.offsetX = 5
         self.offsetY = 10
-        self.offsetPos = 1
+        self.offsetPos = 0
 
         self.resume = False
 
