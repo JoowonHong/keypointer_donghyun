@@ -1,0 +1,8 @@
+**__pycache__/
+dev
+*.DS_Store
+data/*
+!data/README.md
+.pylintrc
+*.diff
+KeyPointer_old.py
