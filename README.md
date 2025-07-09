@@ -1,4 +1,4 @@
-## Field-Hockey Keypointer
+## Tennis ball Keypointer
 
 ### Install
 ```shell
