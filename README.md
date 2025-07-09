@@ -17,7 +17,6 @@ conda activate keypointer
 ### Setup
 Tool
 ```shell
-git clone git@github.com:PXScope/pxcast-keypointer.git
 cd pxcast-keypointer
 pip install opencv-python PyQt5==5.15.10
 ```
