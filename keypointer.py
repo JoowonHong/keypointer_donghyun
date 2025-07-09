@@ -2,7 +2,7 @@
 """
 UtilityAI 애플리케이션
 
-이 스크립트는 필드하키 Ball Data Annotation을 위해 제작됐습니다. 
+이 스크립트는 Tennis Ball Data Annotation을 위해 제작됐습니다. 
 PyQt5를 사용하여 GUI 애플리케이션을 생성합니다. 
 주요 클래스는 MainWindow와 FormWidget으로, 메인 윈도우와 폼 위젯을 각각 정의합니다.
 
@@ -243,7 +243,6 @@ class FormWidget(QWidget):
 
         # resume
         allTxtList = self.scanAllItems(self.keypointDirpath)
-        
         if self.resume and len(allTxtList) != 0:
             latestItem = os.path.basename(allTxtList[-2]).replace("txt", "jpg")
             resumeImg = os.path.join(self.imageDirpath, latestItem)
@@ -322,17 +321,17 @@ class FormWidget(QWidget):
             tempData = ""
             for index, item in enumerate(line):
                 if index == 1:
-                    item = round(item * self.reverseRatio / self.oriWidth, 4)
+                    item = round(item * self.reverseRatio / self.oriWidth, 4)   # cx
                 if index == 2:
-                    item = round(item * self.reverseRatio / self.oriHeight, 4)
+                    item = round(item * self.reverseRatio / self.oriHeight, 4)   # cy
                 if index == 3:
-                    item = round(item * self.reverseRatio / self.oriWidth, 4)
+                    item = round(item * self.reverseRatio / self.oriWidth, 4)   # objs_w
                 if index == 4:
-                    item = round(item * self.reverseRatio / self.oriWidth, 4)
+                    item = round(item * self.reverseRatio / self.oriHeight, 4)   # objs_h
                 if index == 5:
-                    item = round(item * self.reverseRatio / self.oriWidth, 4)
+                    item = round(item * self.reverseRatio / self.oriWidth, 4)   # px1
                 if index == 6:
-                    item = round(item * self.reverseRatio / self.oriWidth, 4)
+                    item = round(item * self.reverseRatio / self.oriHeight, 4)   # py1
 
                 tempData = tempData + str(item) + ","
             exportData = exportData + tempData[0 : len(tempData) - 1] + "\n"
@@ -661,103 +660,6 @@ class FormWidget(QWidget):
         """
         self.refreshPaint()
         self.txtOpenEvent()
-
-
-class Projection:
-    """Projection 클래스
-
-    이 클래스는 입력 받은 객체의 좌표를 카메라 파라미터를 읽어와 Birdview에서 바라본 시점으로 치환합니다.
-    """
-
-    def __init__(self, cam: str) -> None:
-        """초기화 메서드.
-
-        카메라 파라미터를 로드하고 이미지를 처리하기 위한 기본 설정을 초기화합니다.
-
-        Args:
-            cam (str): 카메라 식별자.
-        """
-
-        self.cam = cam
-        self.imgsz = (1920, 1080)
-
-        self.params = self.load_params()
-
-    def load_params(self) -> dict:
-        """카메라 파라미터 로드 메서드.
-
-        주어진 카메라 식별자를 사용하여 내재적 및 외재적 카메라 파라미터를 로드합니다.
-
-        Returns:
-            dict: 로드된 카메라 파라미터를 포함하는 딕셔너리.
-        """
-
-        intrinsic_url = (
-            "https://calib.pixelcast.ai/api/intrinsic/"
-            + f"{self.cam}?verbose=0&page=0&count=1"
-        )
-        extrinsic_url = (
-            f"https://calib.pixelcast.ai/api/extrinsic/{self.cam}?&count=1&verbose=1"
-        )
-
-        with urllib.request.urlopen(intrinsic_url) as response:
-            raw = response.read()
-            intrinsic = literal_eval(raw.decode("utf-8"))
-
-        with urllib.request.urlopen(extrinsic_url) as response:
-            raw = response.read()
-            extrinsic = literal_eval(raw.decode("utf-8"))
-
-        mtx = intrinsic["items"][0]["params"]["mtx"]
-        dist = intrinsic["items"][0]["params"]["dist"]
-
-        src = extrinsic["items"][0]["options"]["points"]["img_points"]
-        dst = extrinsic["items"][0]["options"]["points"]["obj_points"]
-
-        params = {
-            "mtx": np.array(mtx, dtype=np.float32),
-            "dist": np.array(dist, dtype=np.float32),
-            "src": np.array(src, dtype=np.float32),
-            "dst": np.array(dst, dtype=np.float32),
-        }
-
-        return params
-
-    def project(self, points: list) -> np.ndarray:
-        """좌표 변환 메서드.
-
-        입력된 object의 좌표를 Birdview 시점으로 변환합니다.
-
-        Args:
-            points (list): 변환할 좌표 목록.
-
-        Returns:
-            np.ndarray: 변환된 좌표 배열.
-        """
-
-        values = [p[2:] for p in points]
-
-        new_mtx, _ = cv2.getOptimalNewCameraMatrix(
-            self.params["mtx"], self.params["dist"], self.imgsz, 0, self.imgsz
-        )
-
-        self.params["dst"] = self.params["dst"][:, :2]  # 3차원->2차원 : z축이 없음.
-
-        M = cv2.getPerspectiveTransform(
-            np.array(self.params["src"], dtype=np.float32),
-            np.array(self.params["dst"], dtype=np.float32),
-        )
-
-        u_centers = cv2.undistortPoints(
-            np.array(values, dtype=np.float32),
-            self.params["mtx"],
-            self.params["dist"],
-            P=new_mtx,
-        )
-        u_centers = u_centers.reshape(-1, 2)
-        b_centers = cv2.perspectiveTransform(np.expand_dims(u_centers, 0), M)[0]
-
-        return b_centers
 
 
 if __name__ == "__main__":

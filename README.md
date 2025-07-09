@@ -2,31 +2,27 @@
 
 ### Install
 ```shell
-conda create -n keypointer python==3.9.5 -y
-conda activate keypointer
-```
-
-상기 내용 적용 안되는 경우, 기본적으로 defaults 채널만 사용하고 있는 경우일 수 있으며 추가적인 채널을 추가하면 문제를 해결할 수 있음.
-```shell
-conda config --add channels conda-forge
-conda install -c conda-forge python=3.9.5
-conda create -n keypointer -c conda-forge python=3.9.5
+conda create -n keypointer python==3.10.* -y
 conda activate keypointer
 ```
 
 ### Setup
 Tool
 ```shell
-cd pxcast-keypointer
+cd keypointer
 pip install opencv-python PyQt5==5.15.10
+
+# image resources 
+pyrcc5 resources.qrc -o resources_rc.py
+
 ```
 
 ### Run
 ```shell
 python keypointer.py
 
-# 1. Click the frame directory          (./240427/BRAX001/part1/frame)
-# 2. Click the ground truth directory   (./240427/BRAX001/part1/gt)
+# 1. Click the frame directory          (./donghae_a_01/part0/images)
+# 2. Click the ground truth directory   (./donghae_a_01/part0/labels)
 ```
 
 ### Commands
