@@ -206,6 +206,8 @@ class FormWidget(QWidget):
         self.obj_h = 90
         self.obj_w = 120
 
+        self.trajectory = 0
+
         self.resize(1280, 720)      # w, h
         self.initStatic()
 
@@ -446,8 +448,10 @@ class FormWidget(QWidget):
             f = open(txtPath)
             lines = f.readlines()
             for index, line in enumerate(lines):
+                if index != 0:
+                    continue
                 line_ = list(map(float, line.strip().split(" ")))
-                line_new = [0, 0, 0, 0, 0, 0, 0, 0]    # [class, cx, cy, obj_w, obj_h, px1, py1, vis]
+                line_new = [0, 0, 0, 0, 0, 0, 0, 0, 0]    # [class, cx, cy, obj_w, obj_h, px1, py1, vis, trajectory]
                 line_new[0] = int(line_[0])
                 line_new[1] = int(line_[1] * self.oriWidth * self.sizeRatio)
                 line_new[2] = int(line_[2] * self.oriHeight * self.sizeRatio)
@@ -456,6 +460,7 @@ class FormWidget(QWidget):
                 line_new[5] = int(line_[5] * self.oriWidth * self.sizeRatio)
                 line_new[6] = int(line_[6] * self.oriHeight * self.sizeRatio)
                 line_new[7] = int(line_[7])
+                line_new[8] = int(line_[8]) if len(line_) > 8 else 0          # TODO: remove
                 values.append(line_new)
             f.close()
         else:
@@ -486,7 +491,7 @@ class FormWidget(QWidget):
         키포인트 데이터를 초기화합니다.
         """
         self.points = []
-        self.points.append([0, -1, -1, -1, -1, -1, -1, 0])  # [class, cx, cy, obj_w, obj_h, px1, py1, vis]
+        self.points.append([0, -1, -1, -1, -1, -1, -1, 0, 0])  # [class, cx, cy, obj_w, obj_h, px1, py1, vis, trajectory]
         self.keyPoint = 0
 
     def initStatic(self) -> None:
@@ -494,8 +499,14 @@ class FormWidget(QWidget):
 
         정적 데이터를 초기화합니다.
         """
+        # self.ballType = [
+        #     "ball",  # 1
+        # ]
+        
         self.ballType = [
-            "ball",  # 1
+            "flying",       # 1 -> 0
+            "hit",          # 2 -> 1
+            "bouncing",     # 3 -> 2
         ]
 
         self.personType = [
@@ -537,7 +548,8 @@ class FormWidget(QWidget):
                 point = QPoint(value[1], value[2])
 
                 if point != QPoint(0, 0):
-                    self.painter.setPen(QPen(self.paintColor(value[7]), 3))
+                    # self.painter.setPen(QPen(self.paintColor(value[7], type='vis'), 3))
+                    self.painter.setPen(QPen(self.paintColor(value[8], type='trajectory'), 3))
                     self.painter.setRenderHint(QPainter.Antialiasing, True)
                     self.painter.drawPoint(point)
                     pSize = 20
@@ -550,7 +562,7 @@ class FormWidget(QWidget):
             self.imageViewerWidget.setPixmap(self.pixmap)
             self.imageViewerWidget.update()
 
-    def paintColor(self, value: int) -> QColor:
+    def paintColor(self, value: int, type='vis') -> QColor:
         """페인트 색상 설정.
 
         키포인트의 가시성에 따라 페인트 색상을 설정합니다.
@@ -561,9 +573,23 @@ class FormWidget(QWidget):
         Returns:
             QColor: 설정된 색상.
         """
-        if value == 1:
-            return Qt.blue
-        return Qt.red
+
+        if type=='vis':
+            if value == 1:
+                return Qt.blue
+            else:
+                return Qt.red
+
+        if type=='trajectory':
+            if value == 0:
+                return Qt.blue
+            elif value == 1:
+                return Qt.red
+            elif value == 2:
+                return Qt.green
+
+        return Qt.blue
+
 
     def refreshPaint(self) -> None:
         """페인트 새로 고침.
@@ -595,7 +621,11 @@ class FormWidget(QWidget):
             event (QKeyEvent): 키보드 키 이벤트.
         """
         if event.key() == Qt.Key_1:
-            self.keyPoint = 0
+            self.trajectory = 0
+        if event.key() == Qt.Key_2:
+            self.trajectory = 1
+        if event.key() == Qt.Key_3:
+            self.trajectory = 2
 
         elif event.key() == Qt.Key_I:
             self.points[self.keyPoint][2] -= self.offsetPos
@@ -617,7 +647,7 @@ class FormWidget(QWidget):
             event (QMouseEvent): 마우스 클릭 이벤트.
         """
 
-        # cx, cy
+        # obj_cx, obj_cy
         self.points[self.keyPoint][1] = event.x() - int(
             self.offsetX * max(self.sizeRatio, self.reverseRatio)
         )
@@ -646,6 +676,9 @@ class FormWidget(QWidget):
             self.points[self.keyPoint][7] = 1
         elif event.button() == Qt.RightButton:
             self.points[self.keyPoint][7] = 0
+
+        # trajectory
+        self.points[self.keyPoint][8] = self.trajectory     # 0, 1, 2
 
         self.refreshPaint()
 
