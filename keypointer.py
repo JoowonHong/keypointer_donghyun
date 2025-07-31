@@ -493,6 +493,7 @@ class FormWidget(QWidget):
         self.points = []
         self.points.append([0, -1, -1, -1, -1, -1, -1, 0, 0])  # [class, cx, cy, obj_w, obj_h, px1, py1, vis, trajectory]
         self.keyPoint = 0
+        self.trajectory = 0
 
     def initStatic(self) -> None:
         """정적 데이터 초기화
