@@ -43,3 +43,9 @@ python keypointer.py
 # K : Position down
 # L : Position right
 ```
+
+```shell
+./utils/mp4toffmpeg.sh ./tennis_actions/videos_train
+./utils/mp4toffmpeg.sh ./tennis_actions/videos_val
+
+```
