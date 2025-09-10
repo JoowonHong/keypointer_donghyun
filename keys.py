@@ -1,6 +1,7 @@
 # pylint: disable=E0611, C0103, R0902, W1514, E1101, W0201, R1732, W0613, R0904
 """
 2025-09-10 Joowon edited
+주원 노트북에서 수정 2025_09_10
 
 UtilityAI 애플리케이션
 
