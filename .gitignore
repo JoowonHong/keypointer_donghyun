@@ -6,5 +6,4 @@ data/*
 .pylintrc
 *.diff
 KeyPointer_old.py
-
-data
+data_analysis/**

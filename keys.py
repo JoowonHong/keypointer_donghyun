@@ -195,7 +195,7 @@ class FormWidget(QWidget):
         self.currIndex = 0
         self.offsetX = 5
         self.offsetY = 10
-        self.offsetPos = 0
+        self.offsetPos = 3
 
         self.resume = False
 
@@ -623,10 +623,19 @@ class FormWidget(QWidget):
         """
         if event.key() == Qt.Key_1:
             self.trajectory = 0
-        if event.key() == Qt.Key_2:
+            # 현재 포인트의 trajectory도 즉시 업데이트
+            if len(self.points) > self.keyPoint:
+                self.points[self.keyPoint][8] = self.trajectory
+        elif event.key() == Qt.Key_2:
             self.trajectory = 1
-        if event.key() == Qt.Key_3:
+            # 현재 포인트의 trajectory도 즉시 업데이트
+            if len(self.points) > self.keyPoint:
+                self.points[self.keyPoint][8] = self.trajectory
+        elif event.key() == Qt.Key_3:
             self.trajectory = 2
+            # 현재 포인트의 trajectory도 즉시 업데이트
+            if len(self.points) > self.keyPoint:
+                self.points[self.keyPoint][8] = self.trajectory
 
         elif event.key() == Qt.Key_I:
             self.points[self.keyPoint][2] -= self.offsetPos
